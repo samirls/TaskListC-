@@ -1,0 +1,27 @@
+﻿@model TaskListC_.ViewModel.CreateTaskVM
+
+<h1>Create Task</h1>
+<div asp-validation-summary="All"></div>
+<div>
+  <form asp-action="CreateTask" method="post">
+    <div class="form-floating mb-3">
+      <input type="text" asp-for="TaskTitle" name="TaskTitle" class="form-control" id="TaskTitle" placeholder="Title">
+      <label for="taskDescription">Title</label>
+      <span asp-validation-for="TaskTitle" class="text-danger"></span>
+    </div>
+    <div class="form-floating">
+      <textarea type="text" asp-for="TaskDescription" name="TaskDescription" class="form-control" placeholder="Description" id="TaskDescription" style="height: 120px"></textarea>
+      <label for="floatingTextarea2">Description</label>
+      <span asp-validation-for="TaskDescription" class="text-danger"></span>
+    </div>
+    <div class="d-flex justify-content-center pt-4">
+      <button type="submit" class="btn btn-success">Create</button>
+    </div>
+  </form>
+</div>
+
+@section Scripts {
+  @{
+    await Html.RenderPartialAsync("_ValidationScriptsPartial");
+  }
+}

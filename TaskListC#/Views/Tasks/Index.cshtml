@@ -1,0 +1,75 @@
+﻿@model IEnumerable<TaskListC_.Models.ToDoTask>
+
+<h1>Tasks</h1>
+<a asp-controller="Tasks" asp-action="CreateTask" class="btn btn-success">Create New Task</a>
+<hr />
+<h4>All Your Tasks</h4>
+@if (!Model.Any())
+{
+  <h6 class="d-flex justify-content-center">You have no tasks, create one!</h6>
+}
+<div class="d-flex flex-wrap gap-5">
+  @foreach (var task in Model.Reverse())
+  {
+    <div class="card shadow" style="width: 350px;">
+      <div class="card-body">
+        <h5 class="card-title">@task.TaskTitle</h5>
+        <p class="card-text">@task.TaskDescription</p>
+      </div>
+      <ul class="list-group list-group-flush">
+        <li class="list-group-item">Shared to: </li>
+        <li class="list-group-item">
+          <form asp-action="DeleteTask" method="post" onsubmit="confirmDelete(this);" class="d-flex justify-content-center gap-2">
+            <input type="hidden" name="id" value="@task.Id" />
+            <a asp-action="EditTask" asp-route-id="@task.Id" class="btn btn-purple">Edit</a>
+            <button type="submit" class="btn btn-danger">Delete</button>
+          </form>
+        </li>
+      </ul>
+    </div>
+  }
+</div>
+
+
+
+
+
+@section Scripts {
+  @{
+    await Html.RenderPartialAsync("_ValidationScriptsPartial");
+  }
+  <script>
+    function confirmDelete(form) {
+      event.preventDefault();
+      console.log(form);
+      Swal.fire({
+        title: "Are you sure?",
+        text: "You won't be able to revert this!",
+        icon: "warning",
+        showCancelButton: true,
+        confirmButtonColor: "#d33",
+        confirmButtonText: "Delete",
+        showClass: {
+          popup: `
+              animate__animated
+              animate__zoomIn
+              animate__faster
+            `
+        },
+        hideClass: {
+          popup: `
+              animate__animated
+              animate__zoomOut
+              animate__faster
+            `
+        }
+      }).then((result) => {
+        if (result.isConfirmed) {
+          form.submit();
+        }
+      });
+
+      return false;
+    }
+  </script>
+}
