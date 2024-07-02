@@ -1,4 +1,5 @@
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.AspNetCore.Mvc.Filters;
 using System.Diagnostics;
 using TaskListC_.Models;
 
@@ -13,6 +14,12 @@ namespace TaskListC_.Controllers
       _logger = logger;
     }
 
+    public override void OnActionExecuting(ActionExecutingContext filterContext)
+    {
+      base.OnActionExecuting(filterContext);
+      ViewBag.CurrentUrl = filterContext.HttpContext.Request.Path;
+    }
+
     public IActionResult Index()
     {
       return View();
@@ -23,5 +30,6 @@ namespace TaskListC_.Controllers
     {
       return View(new ErrorViewModel { RequestId = Activity.Current?.Id ?? HttpContext.TraceIdentifier });
     }
+
   }
 }
