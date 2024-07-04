@@ -21,6 +21,12 @@ body {
   margin-bottom: 60px;
 }
 
+footer {
+  position:absolute;
+  bottom: 0;
+  width: 100%;
+}
+
 .btn-purple {
   color: white;
   background-color: #8540f5;

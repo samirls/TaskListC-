@@ -8,12 +8,12 @@ namespace TaskListC_.ViewModel
     [Display(Name = "Task Title")]
     [MinLength(5, ErrorMessage = "Your title is too short")]
     [MaxLength(80, ErrorMessage = "Your title must not exceed {1} letters")]
-    public string? TaskTitle { get; set; }
+    public string TaskTitle { get; set; }
 
     [Required(ErrorMessage = "You need to add a description")]
     [Display(Name = "Task Description")]
     [MinLength(5, ErrorMessage = "Your description is too short")]
     [MaxLength(400, ErrorMessage = "Your description must not exceed {1} letters")]
-    public string? TaskDescription { get; set; }
+    public string TaskDescription { get; set; }
   }
 }

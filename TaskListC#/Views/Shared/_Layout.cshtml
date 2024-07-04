@@ -1,9 +1,13 @@
-﻿<!DOCTYPE html>
+﻿@inject TaskListC_.Helpers.UserHelper UserHelper
+@using Microsoft.AspNetCore.Identity
+
+
+<!DOCTYPE html>
 <html lang="en">
 <head>
   <meta charset="utf-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>@ViewData["Title"] - TaskListC#</title>
+  <title>TaskListC#</title>
   <link rel="stylesheet" href="~/lib/bootstrap/dist/css/bootstrap.min.css" />
   <link rel="stylesheet" href="~/css/site.css" asp-append-version="true" />
   <link rel="stylesheet" href="~/TaskListC_.styles.css" asp-append-version="true" />
@@ -24,15 +28,13 @@
         <div>
           <div class="navbar-collapse collapse d-sm-inline-flex justify-content-between pe-5">
             <ul class="navbar-nav flex-grow-1 fs-4 gap-5">
-              <li class="nav-item">
-                <a class="nav-link @(ViewBag.CurrentUrl == Url.Action("Index", "Home") ? "text-primary" : "")" asp-area="" asp-controller="Home" asp-action="Index">Login</a>
-              </li>
-              <li class="nav-item">
-                <a class="nav-link" asp-area="" asp-controller="Home" asp-action="Index">Register</a>
-              </li>
-              <li class="nav-item">
-                <a class="nav-link" asp-area="" asp-controller="Tasks" asp-action="Index">Tasks</a>
-              </li>
+@*               @if (User.Identity.IsAuthenticated)
+              {
+                <li class="nav-item">
+                  <span class="navbar-text text-primary">@await UserHelper.GetUserNameAsync()</span>
+                </li>
+              } *@
+              @await Html.PartialAsync("_LoginPartial")
             </ul>
           </div>
         </div>
@@ -46,7 +48,7 @@
     </main>
   </div>
 
-  <footer class="border-top footer text-muted">
+  <footer class="border-top text-muted">
     <div class="container">
       &copy; 2024 - TaskList made with C# by samirls
     </div>

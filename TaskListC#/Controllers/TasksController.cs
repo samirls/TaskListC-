@@ -1,4 +1,7 @@
-﻿using Microsoft.AspNetCore.Mvc;
+﻿using Microsoft.AspNetCore.Identity;
+using Microsoft.AspNetCore.Mvc;
+using Microsoft.AspNetCore.Mvc.Filters;
+using Microsoft.EntityFrameworkCore;
 using TaskListC_.Context;
 using TaskListC_.Models;
 using TaskListC_.ViewModel;
@@ -8,14 +11,24 @@ namespace TaskListC_.Controllers
   public class TasksController : Controller
   {
     private readonly AppDbContext _context;
+    private readonly UserManager<User> _userManager;
 
-    public TasksController(AppDbContext context)
+    public TasksController(AppDbContext context, UserManager<User> userManager)
     {
       _context = context;
+      _userManager = userManager;
     }
-    public IActionResult Index()
+
+    public override void OnActionExecuting(ActionExecutingContext filterContext)
     {
-      var tasks = _context.ToDoTasks.ToList();
+      base.OnActionExecuting(filterContext);
+      ViewBag.CurrentUrl = filterContext.HttpContext.Request.Path;
+    }
+    public async Task<IActionResult> Index()
+    {
+      var user = await _userManager.GetUserAsync(User);
+      var tasks = _context.ToDoTasks.Where(t => t.UserId == user.Id).ToList();
+
       return View(tasks);
     }
     public IActionResult CreateTask()
@@ -24,11 +37,14 @@ namespace TaskListC_.Controllers
     }
 
     [HttpPost]
-    public IActionResult CreateTask(CreateTaskVM task)
+    public async Task<IActionResult> CreateTask(CreateTaskVM task)
     {
+      var user = await _userManager.GetUserAsync(User);
+
       var taskToSave = new ToDoTask();
       taskToSave.TaskTitle = task.TaskTitle;
       taskToSave.TaskDescription = task.TaskDescription;
+      taskToSave.UserId = user.Id;
 
       _context.ToDoTasks.Add(taskToSave);
       _context.SaveChanges();
@@ -37,27 +53,34 @@ namespace TaskListC_.Controllers
     }
 
     [HttpPost]
-    public IActionResult DeleteTask(int id)
+    public async Task<IActionResult> DeleteTask(int id)
     {
-      var task = _context.ToDoTasks.FirstOrDefault(t => t.Id == id);
+      var user = await _userManager.GetUserAsync(User);
+      var task = await _context.ToDoTasks.FirstOrDefaultAsync(t => t.Id == id && t.UserId == user.Id);
       if (task != null)
       {
         _context.ToDoTasks.Remove(task);
         _context.SaveChanges();
         TempData["success"] = "Task deleted successfully";
       }
+      else
+      {
+        TempData["error"] = "Something went wrong";
+      }
 
       return RedirectToAction("Index");
     }
 
-    public IActionResult EditTask(int? id)
+    public async Task<IActionResult> EditTask(int? id)
     {
       if (id == null)
       {
         return NotFound();
       }
 
-      ToDoTask? task = _context.ToDoTasks.Find(id);
+      var user = await _userManager.GetUserAsync(User);
+
+      ToDoTask task = await _context.ToDoTasks.FirstOrDefaultAsync(t => t.Id == id && t.UserId == user.Id);
 
       if (task == null)
       {
@@ -68,8 +91,16 @@ namespace TaskListC_.Controllers
     }
 
     [HttpPost]
-    public IActionResult EditTask(ToDoTask obj)
+    public async Task<IActionResult> EditTask(ToDoTask obj)
     {
+      var user = await _userManager.GetUserAsync(User);
+
+      if (obj.UserId != user.Id)
+      {
+        TempData["error"] = "You are not authorized to edit this task";
+        return RedirectToAction("Index");
+      }
+
       if (ModelState.IsValid)
       {
         _context.ToDoTasks.Update(obj);

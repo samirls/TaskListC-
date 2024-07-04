@@ -19,6 +19,9 @@ namespace TaskListC_.Models
     [MaxLength(400, ErrorMessage = "Your description must not exceed {1} letters")]
     public string? TaskDescription { get; set; }
 
+    [Required]
+    public string UserId { get; set; }
+
 
   }
 }

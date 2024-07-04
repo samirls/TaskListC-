@@ -1,0 +1,37 @@
+﻿@model TaskListC_.ViewModel.LoginVM
+
+<div class="d-flex justify-content-center">
+  <div class="mt-5" style="width: 320px; padding: 45px;">
+    <form asp-controller="Account" asp-action="Login" method="post" id="loginForm">
+      <div asp-validation-summary="All" class="text-danger"></div>
+      <h1 class="h3 mb-3 fw-normal d-flex justify-content-center">Login</h1>
+      <div class="form-floating">
+        <input type="email"
+               class="form-control"
+               id="floatingInput"
+               placeholder="name@example.com"
+               asp-for="Email">
+        <label for="floatingInput">Email address</label>
+        <span asp-validation-for="Email" class="text-danger"></span>
+      </div>
+      <div class="pt-3">
+        <div class="form-floating">
+          <input type="password"
+                 class="form-control"
+                 id="floatingPassword"
+                 placeholder="Password"
+                 asp-for="Password">
+          <label for="floatingPassword">Password</label>
+          <span asp-validation-for="Password" class="text-danger"></span>
+        </div>
+      </div>
+      <div class="pt-4 text-center">
+        <p>Don't have an account? <a asp-controller="Account" asp-action="Register" style="text-decoration:none">Register</a></p>
+      </div>
+      <button id="submitButton" class="btn btn-primary w-100 py-2" type="submit">
+        <span id="buttonText">Sign in</span>
+        <span id="spinner" class="spinner-border spinner-border-sm d-none" role="status" aria-hidden="true"></span>
+      </button>
+    </form>
+  </div>
+</div>
