@@ -14,6 +14,11 @@ namespace TaskListC_.ViewModel
     [DataType(DataType.Password)]
     public string Password { get; set; }
 
+    [Required]
+    [DataType(DataType.Password)]
+    [Compare("Password", ErrorMessage = "Passwords do not match.")]
+    public string ConfirmPassword { get; set; }
+
     [Required(ErrorMessage = "Inform your sex")]
     public string Sex { get; set; }
 

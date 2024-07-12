@@ -12,8 +12,8 @@ using TaskListC_.Context;
 namespace TaskListC_.Migrations
 {
     [DbContext(typeof(AppDbContext))]
-    [Migration("20240704205429_taskHaveId")]
-    partial class taskHaveId
+    [Migration("20240712035726_newtables")]
+    partial class newtables
     {
         /// <inheritdoc />
         protected override void BuildTargetModel(ModelBuilder modelBuilder)
@@ -158,6 +158,59 @@ namespace TaskListC_.Migrations
                     b.ToTable("AspNetUserTokens", (string)null);
                 });
 
+            modelBuilder.Entity("TaskListC_.Models.Friendship", b =>
+                {
+                    b.Property<int>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("int");
+
+                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("Id"));
+
+                    b.Property<string>("FriendId")
+                        .IsRequired()
+                        .HasColumnType("nvarchar(450)");
+
+                    b.Property<string>("UserId")
+                        .IsRequired()
+                        .HasColumnType("nvarchar(450)");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("FriendId");
+
+                    b.HasIndex("UserId");
+
+                    b.ToTable("Friendships");
+                });
+
+            modelBuilder.Entity("TaskListC_.Models.Invite", b =>
+                {
+                    b.Property<int>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("int");
+
+                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("Id"));
+
+                    b.Property<int>("InviteStatus")
+                        .HasColumnType("int");
+
+                    b.Property<string>("ReceiverId")
+                        .IsRequired()
+                        .HasColumnType("nvarchar(450)");
+
+                    b.Property<string>("SenderId")
+                        .IsRequired()
+                        .HasColumnType("nvarchar(450)");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("ReceiverId");
+
+                    b.HasIndex("SenderId");
+
+                    b.ToTable("Invites");
+                });
+
             modelBuilder.Entity("TaskListC_.Models.ToDoTask", b =>
                 {
                     b.Property<int>("Id")
@@ -165,6 +218,12 @@ namespace TaskListC_.Migrations
                         .HasColumnType("int");
 
                     SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("Id"));
+
+                    b.Property<DateTime?>("CreatedAt")
+                        .HasColumnType("datetime2");
+
+                    b.Property<DateTime?>("LastUpdate")
+                        .HasColumnType("datetime2");
 
                     b.Property<string>("TaskDescription")
                         .IsRequired()
@@ -176,8 +235,7 @@ namespace TaskListC_.Migrations
                         .HasMaxLength(80)
                         .HasColumnType("nvarchar(80)");
 
-                    b.Property<string>("UserId")
-                        .IsRequired()
+                    b.Property<string>("UpdatedByUserId")
                         .HasColumnType("nvarchar(max)");
 
                     b.HasKey("Id");
@@ -247,6 +305,9 @@ namespace TaskListC_.Migrations
                         .IsRequired()
                         .HasColumnType("nvarchar(max)");
 
+                    b.Property<int?>("ToDoTaskId")
+                        .HasColumnType("int");
+
                     b.Property<bool>("TwoFactorEnabled")
                         .HasColumnType("bit");
 
@@ -263,6 +324,8 @@ namespace TaskListC_.Migrations
                         .IsUnique()
                         .HasDatabaseName("UserNameIndex")
                         .HasFilter("[NormalizedUserName] IS NOT NULL");
+
+                    b.HasIndex("ToDoTaskId");
 
                     b.ToTable("AspNetUsers", (string)null);
                 });
@@ -316,6 +379,65 @@ namespace TaskListC_.Migrations
                         .HasForeignKey("UserId")
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
+                });
+
+            modelBuilder.Entity("TaskListC_.Models.Friendship", b =>
+                {
+                    b.HasOne("TaskListC_.Models.User", "Friend")
+                        .WithMany()
+                        .HasForeignKey("FriendId")
+                        .OnDelete(DeleteBehavior.NoAction)
+                        .IsRequired();
+
+                    b.HasOne("TaskListC_.Models.User", "User")
+                        .WithMany("Friendships")
+                        .HasForeignKey("UserId")
+                        .OnDelete(DeleteBehavior.NoAction)
+                        .IsRequired();
+
+                    b.Navigation("Friend");
+
+                    b.Navigation("User");
+                });
+
+            modelBuilder.Entity("TaskListC_.Models.Invite", b =>
+                {
+                    b.HasOne("TaskListC_.Models.User", "Receiver")
+                        .WithMany("ReceivedInvites")
+                        .HasForeignKey("ReceiverId")
+                        .OnDelete(DeleteBehavior.NoAction)
+                        .IsRequired();
+
+                    b.HasOne("TaskListC_.Models.User", "Sender")
+                        .WithMany("SentInvites")
+                        .HasForeignKey("SenderId")
+                        .OnDelete(DeleteBehavior.NoAction)
+                        .IsRequired();
+
+                    b.Navigation("Receiver");
+
+                    b.Navigation("Sender");
+                });
+
+            modelBuilder.Entity("TaskListC_.Models.User", b =>
+                {
+                    b.HasOne("TaskListC_.Models.ToDoTask", null)
+                        .WithMany("Users")
+                        .HasForeignKey("ToDoTaskId");
+                });
+
+            modelBuilder.Entity("TaskListC_.Models.ToDoTask", b =>
+                {
+                    b.Navigation("Users");
+                });
+
+            modelBuilder.Entity("TaskListC_.Models.User", b =>
+                {
+                    b.Navigation("Friendships");
+
+                    b.Navigation("ReceivedInvites");
+
+                    b.Navigation("SentInvites");
                 });
 #pragma warning restore 612, 618
         }

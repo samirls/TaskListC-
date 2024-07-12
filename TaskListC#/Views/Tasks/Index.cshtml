@@ -1,7 +1,11 @@
 ﻿@model IEnumerable<TaskListC_.Models.ToDoTask>
 
 <h1>Tasks</h1>
-<a asp-controller="Tasks" asp-action="CreateTask" class="btn btn-success">Create New Task</a>
+<a asp-controller="Tasks" asp-action="CreateTask" class="btn btn-success">
+  <div class="d-flex gap-1 align-content-center">
+    <i class="bi bi-plus-circle"></i> Create New Task
+  </div>
+</a>
 <hr />
 <h4>All Your Tasks</h4>
 @if (!Model.Any())
@@ -17,6 +21,7 @@
         <p class="card-text">@task.TaskDescription</p>
       </div>
       <ul class="list-group list-group-flush">
+        <li class="list-group-item">Created at @task.CreatedAt </li>
         <li class="list-group-item">Shared to: </li>
         <li class="list-group-item">
           <form asp-action="DeleteTask" method="post" onsubmit="confirmDelete(this);" class="d-flex justify-content-center gap-2">

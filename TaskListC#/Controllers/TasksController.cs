@@ -24,10 +24,15 @@ namespace TaskListC_.Controllers
       base.OnActionExecuting(filterContext);
       ViewBag.CurrentUrl = filterContext.HttpContext.Request.Path;
     }
+
+    [HttpGet]
     public async Task<IActionResult> Index()
     {
       var user = await _userManager.GetUserAsync(User);
-      var tasks = _context.ToDoTasks.Where(t => t.UserId == user.Id).ToList();
+
+      var tasks = await _context.ToDoTasks
+        .Where(t => t.Users.Any(u => u.Id == user.Id))
+        .ToListAsync();
 
       return View(tasks);
     }
@@ -44,10 +49,11 @@ namespace TaskListC_.Controllers
       var taskToSave = new ToDoTask();
       taskToSave.TaskTitle = task.TaskTitle;
       taskToSave.TaskDescription = task.TaskDescription;
-      taskToSave.UserId = user.Id;
+      taskToSave.Users = new List<User> { user };
+      taskToSave.CreatedAt = DateTime.Now;
 
       _context.ToDoTasks.Add(taskToSave);
-      _context.SaveChanges();
+      await _context.SaveChangesAsync();
       TempData["success"] = "Task created successfully";
       return RedirectToAction("Index");
     }
@@ -56,7 +62,8 @@ namespace TaskListC_.Controllers
     public async Task<IActionResult> DeleteTask(int id)
     {
       var user = await _userManager.GetUserAsync(User);
-      var task = await _context.ToDoTasks.FirstOrDefaultAsync(t => t.Id == id && t.UserId == user.Id);
+      var task = await _context.ToDoTasks.FirstOrDefaultAsync(t => t.Id == id);
+
       if (task != null)
       {
         _context.ToDoTasks.Remove(task);
@@ -71,6 +78,7 @@ namespace TaskListC_.Controllers
       return RedirectToAction("Index");
     }
 
+    [HttpGet]
     public async Task<IActionResult> EditTask(int? id)
     {
       if (id == null)
@@ -80,7 +88,7 @@ namespace TaskListC_.Controllers
 
       var user = await _userManager.GetUserAsync(User);
 
-      ToDoTask task = await _context.ToDoTasks.FirstOrDefaultAsync(t => t.Id == id && t.UserId == user.Id);
+      ToDoTask task = await _context.ToDoTasks.FirstOrDefaultAsync(t => t.Id == id);
 
       if (task == null)
       {
@@ -95,11 +103,10 @@ namespace TaskListC_.Controllers
     {
       var user = await _userManager.GetUserAsync(User);
 
-      if (obj.UserId != user.Id)
-      {
-        TempData["error"] = "You are not authorized to edit this task";
-        return RedirectToAction("Index");
-      }
+      var updateTask = _context.ToDoTasks.FirstOrDefault(t => t.Id == obj.Id);
+
+      updateTask.UpdatedByUserId = user.Id;
+      updateTask.LastUpdate = DateTime.UtcNow;
 
       if (ModelState.IsValid)
       {

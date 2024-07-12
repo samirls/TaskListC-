@@ -1,6 +1,13 @@
 ﻿@using Microsoft.AspNetCore.Identity
-
+@using TaskListC_.Helpers
+@inject UserHelper UserHelper
 @inject SignInManager<User> SignInManager
+
+@{
+  var userName = await UserHelper.GetUserNameAsync();
+  var invites = await UserHelper.GetUserInvitesAsync();
+  var invitesCount = invites.Count();
+}
 
 @if (SignInManager.IsSignedIn(User))
 {
@@ -17,13 +24,48 @@
     <a class="nav-link @(ViewBag.CurrentUrl.ToString().Contains("/Friends") ? "text-primary" : "")"
        asp-area="" asp-controller="Friends" asp-action="Index">Friends</a>
   </li>
-  <form asp-controller="Account" asp-action="Logout" id="logoutForm" method="post" class="navbar">
-    <ul class="nav navbar">
-      <button>
-        Logout : @User.Identity.Name &nbsp;
-      </button>
+
+  <div class="dropdown">
+    <a class="nav-link" type="button" data-bs-toggle="dropdown" aria-expanded="false">
+      User Settings
+      @if (invitesCount > 0)
+      {
+        <span class="position-absolute top-0 start-100 translate-middle badge rounded-pill bg-danger">
+          @invitesCount
+        </span>
+      }
+    </a>
+    <ul class="dropdown-menu">
+      <li class="ps-2">User: @userName.ToUpper()</li>
+      <li><hr class="dropdown-divider"></li>
+      <li class="ps-2"><a asp-controller="Friends" asp-action="Invitations" class="d-flex pt-2 link-offset-2 link-offset-3-hover link-underline link-underline-opacity-0 link-underline-opacity-75-hover">Manage your invitations</a></li>
+      @if (invitesCount > 0)
+      {
+        foreach (var item in invites)
+        {
+          <li><hr class="dropdown-divider"></li>
+          <div class="px-3">
+            <div>@item?.Sender.Name.ToUpper() wants to be your friend!</div>
+            <div class="d-flex flex-column gap-1">
+              <button class="btn btn-outline-secondary btn-sm">Mark as Read</button>
+              <button class="btn btn-outline-success btn-sm">Accept</button>
+              <button class="btn btn-outline-danger btn-sm">Block</button>
+            </div>
+          </div>
+
+
+        }
+
+      }
+      <li><hr class="dropdown-divider"></li>
+      <form asp-controller="Account" asp-action="Logout" id="logoutForm" method="post">
+      <li class="ps-2">
+        <button class="btn custom-btn"><i class="bi bi-power"></i> Logout</button>
+      </li>
+      </form>
     </ul>
-  </form>
+  </div>
+
 }
 else
 {
@@ -42,14 +84,20 @@ else
                   @(ViewBag.CurrentUrl == Url.Action("Register", "Account") ? "text-primary" : "")"
        asp-area="" asp-controller="Account" asp-action="Register">Register</a>
   </li>
-  <li class="nav-item" >
+  <li class="nav-item">
     <a class="nav-link" style="cursor:pointer" onclick="notLoggedToAccess()">Tasks</a>
   </li>
-  <li class="nav-item" >
+  <li class="nav-item">
     <a class="nav-link" style="cursor:pointer" onclick="notLoggedToAccess()">Friends</a>
   </li>
 }
 
+
+<style>
+  .custom-btn:hover {
+    color: red; /* Define a cor do texto como vermelho */
+  }
+</style>
 
 <script src="~/lib/jquery/dist/jquery.min.js"></script>
 <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/izitoast/dist/css/iziToast.min.css">

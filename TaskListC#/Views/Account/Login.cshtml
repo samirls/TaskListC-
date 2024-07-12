@@ -25,12 +25,12 @@
           <span asp-validation-for="Password" class="text-danger"></span>
         </div>
       </div>
-      <div class="pt-4 text-center">
-        <p>Don't have an account? <a asp-controller="Account" asp-action="Register" style="text-decoration:none">Register</a></p>
+      <div class="pt-4 text-center d-flex gap-1">
+        <p>Don't have an account?</p>
+        <a asp-controller="Account" asp-action="Register" class="d-flex link-offset-2 link-offset-3-hover link-underline link-underline-opacity-0 link-underline-opacity-75-hover">Register</a>
       </div>
       <button id="submitButton" class="btn btn-primary w-100 py-2" type="submit">
         <span id="buttonText">Sign in</span>
-        <span id="spinner" class="spinner-border spinner-border-sm d-none" role="status" aria-hidden="true"></span>
       </button>
     </form>
   </div>

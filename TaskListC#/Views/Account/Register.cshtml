@@ -29,14 +29,14 @@
         </div>
         <div class="col-12 col-md-6">
           <div class="form-floating">
-            <input type="password" class="form-control" id="confirmPassword" placeholder="Password">
+            <input type="password" class="form-control" id="confirmPassword" placeholder="Password" asp-for="ConfirmPassword">
             <label for="confirmPassword">Confirm your Password</label>
-            <span asp-validation-for="Password" class="text-danger"></span>
+            <span asp-validation-for="ConfirmPassword" class="text-danger"></span>
           </div>
         </div>
         <div class="col-12 col-md-6">
           <select class="form-select" asp-for="Sex">
-            <option selected>Sex</option>
+            <option value="" selected>Sex</option>
             <option value="male">Male</option>
             <option value="female">Female</option>
             <option value="dontAnswer">Don't Answer</option>
@@ -45,7 +45,7 @@
         </div>
         <div class="col-12 col-md-6">
           <select class="form-select" asp-for="Color">
-            <option selected>Color</option>
+            <option value="" selected>Color</option>
             <option value="blue">Blue</option>
             <option value="pink">Pink</option>
             <option value="green">Green</option>
@@ -54,7 +54,7 @@
         </div>
         <div class="col-12 col-md-6">
           <select class="form-select" asp-for="Age">
-            <option selected>Age</option>
+            <option value="" selected>Age</option>
             <option value="18orLess">18 or Less</option>
             <option value="19to25">19 to 25</option>
             <option value="26to35">26 to 35</option>
@@ -64,8 +64,9 @@
           <span asp-validation-for="Age" class="text-danger"></span>
         </div>
       </div>
-      <div class="pt-4 text-center">
-        <p>Already have an account? <a asp-controller="Account" asp-action="Login" style="text-decoration:none">Login</a></p>
+      <div class="pt-4 d-flex gap-1">
+        <p>Already have an account?</p>
+        <a asp-controller="Account" asp-action="Login" class="d-flex link-offset-2 link-offset-3-hover link-underline link-underline-opacity-0 link-underline-opacity-75-hover">Login</a>
       </div>
       <div class="pt-3">
         <button class="btn btn-primary w-100 py-2" type="submit">Register</button>

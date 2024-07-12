@@ -19,5 +19,10 @@ namespace TaskListC_.Models
 
     [Required(ErrorMessage = "Inform your age")]
     public string Age { get; set; }
+
+    public ICollection<Invite> SentInvites { get; set; }
+    public ICollection<Invite> ReceivedInvites { get; set; }
+
+    public List<Friendship> Friendships { get; set; }
   }
 }
