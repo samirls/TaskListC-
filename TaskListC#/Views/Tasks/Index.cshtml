@@ -1,4 +1,5 @@
-﻿@model IEnumerable<TaskListC_.Models.ToDoTask>
+﻿@model IEnumerable<TaskListC_.ViewModel.TaskWithUsersVM>
+
 
 <h1>Tasks</h1>
 <a asp-controller="Tasks" asp-action="CreateTask" class="btn btn-success">
@@ -13,20 +14,45 @@
   <h6 class="d-flex justify-content-center">You have no tasks, create one!</h6>
 }
 <div class="d-flex flex-wrap gap-5">
-  @foreach (var task in Model.Reverse())
+  @foreach (var taskWithUsers in Model.Reverse())
   {
     <div class="card shadow" style="width: 350px;">
       <div class="card-body">
-        <h5 class="card-title">@task.TaskTitle</h5>
-        <p class="card-text">@task.TaskDescription</p>
+        <h5 class="card-title">@taskWithUsers.Task.TaskTitle</h5>
+        <p class="card-text">@taskWithUsers.Task.TaskDescription</p>
       </div>
       <ul class="list-group list-group-flush">
-        <li class="list-group-item">Created at @task.CreatedAt </li>
-        <li class="list-group-item">Shared to: </li>
+        <li class="list-group-item">
+          <div>
+            Created by 
+            <span 
+              class="btn btn-outline-secondary"
+              style="--bs-btn-padding-y: .05rem; --bs-btn-padding-x: .2rem; --bs-btn-font-size: .65rem;"
+            >
+              @taskWithUsers.Users[0].Name.ToUpper()
+            </span>
+            at @taskWithUsers.Task.CreatedAt
+          </div>
+          @if (taskWithUsers.Task.LastUpdate.HasValue)
+          {
+            <div>Last Update at @taskWithUsers.Task.LastUpdate</div>
+          }
+        </li>
+          <li class="list-group-item">
+            Shared with:
+            @foreach (var user in taskWithUsers.Users.Skip(1))
+            {
+            <span class="btn btn-outline-secondary"
+                  style="--bs-btn-padding-y: .05rem; --bs-btn-padding-x: .2rem; --bs-btn-font-size: .65rem;">
+              @user.Name.ToUpper()
+            </span>
+            }
+          </li>
         <li class="list-group-item">
           <form asp-action="DeleteTask" method="post" onsubmit="confirmDelete(this);" class="d-flex justify-content-center gap-2">
-            <input type="hidden" name="id" value="@task.Id" />
-            <a asp-action="EditTask" asp-route-id="@task.Id" class="btn btn-purple">Edit</a>
+            <input type="hidden" name="id" value="@taskWithUsers.Task.Id" />
+            <a asp-action="ShareTask" asp-route-id="@taskWithUsers.Task.Id" class="btn btn-primary">Share</a>
+            <a asp-action="EditTask" asp-route-id="@taskWithUsers.Task.Id" class="btn btn-purple">Edit</a>
             <button type="submit" class="btn btn-danger">Delete</button>
           </form>
         </li>
@@ -34,10 +60,6 @@
     </div>
   }
 </div>
-
-
-
-
 
 @section Scripts {
   @{
@@ -56,17 +78,17 @@
         confirmButtonText: "Delete",
         showClass: {
           popup: `
-              animate__animated
-              animate__zoomIn
-              animate__faster
-            `
+                                      animate__animated
+                                      animate__zoomIn
+                                      animate__faster
+                                    `
         },
         hideClass: {
           popup: `
-              animate__animated
-              animate__zoomOut
-              animate__faster
-            `
+                                      animate__animated
+                                      animate__zoomOut
+                                      animate__faster
+                                    `
         }
       }).then((result) => {
         if (result.isConfirmed) {

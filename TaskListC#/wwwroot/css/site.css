@@ -38,3 +38,19 @@ footer {
     background-color: #59359a;
     border-color: #59359a;
   }
+
+.linkedinIcon {
+  color: #0a66c2;
+}
+
+  .linkedinIcon:hover {
+    color: #2188ef;
+  }
+
+.youtubeIcon {
+  color: red;
+}
+
+  .youtubeIcon:hover {
+    color: #ff7070;
+  }

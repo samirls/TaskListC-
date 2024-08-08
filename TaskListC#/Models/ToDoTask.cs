@@ -23,7 +23,7 @@ namespace TaskListC_.Models
 
     public DateTime? LastUpdate { get; set ; }
 
-    public List<User> Users { get; set; }
+    public ICollection<UserToDoTask> UserToDoTasks { get; set; }
     public string UpdatedByUserId { get; set; }
 
   }

@@ -24,5 +24,7 @@ namespace TaskListC_.Models
     public ICollection<Invite> ReceivedInvites { get; set; }
 
     public List<Friendship> Friendships { get; set; }
+
+    public ICollection<UserToDoTask> UserToDoTasks { get; set; }
   }
 }

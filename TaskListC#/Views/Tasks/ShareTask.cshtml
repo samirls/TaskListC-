@@ -1,0 +1,44 @@
+﻿@model TaskListC_.ViewModel.ShareTaskVM
+
+@{
+  ViewData["Title"] = "Share Task";
+}
+
+<h1>Share Task</h1>
+<hr />
+<div class="fs-5">You're about to share the task <strong>@Model.Task.TaskTitle</strong></div>
+<div class="d-flex justify-content-center">Add or Remove Friends to this task:</div>
+<form asp-action="ShareTaskSaveChanges" method="post">
+  <input type="hidden" name="taskId" value="@Model.Task.Id" />
+  <div class="d-flex justify-content-center">
+    <select required class="js-example-basic-multiple" name="friendIds[]" multiple="multiple" style="width: 50%;">
+      @foreach (var item in Model.Friends)
+      {
+        <option value="@item.Id">@item.Name</option>
+      }
+    </select>
+  </div>
+  <div class="d-flex justify-content-center pt-4 gap-5">
+    <a asp-action="Index" class="btn btn-secondary">Cancel</a>
+    <button type="submit" class="btn btn-primary">Save Changes</button>
+  </div>
+</form>
+<div class="pt-5 px-2">
+  <div class="d-flex justify-content-center gap-1">
+    <div>Don't have Friends yet? </div> <a asp-controller="Friends" asp-action="Index" class="d-flex link-offset-2 link-offset-3-hover link-underline link-underline-opacity-0 link-underline-opacity-75-hover">Add a Friend now.</a>
+  </div>
+  <div class="d-flex justify-content-center">
+    If you've already added a Friend and they aren't showing up here, it means they haven't accepted your invitation yet.
+  </div>
+</div>
+
+@section Scripts {
+  <script>
+    $(document).ready(function () {
+      $('.js-example-basic-multiple').select2({
+        width: '50%',
+        dropdownAutoWidth: true
+      });
+    });
+  </script>
+}

@@ -12,6 +12,7 @@ namespace TaskListC_.Context
     }
 
     public DbSet<ToDoTask> ToDoTasks { get; set; }
+    public DbSet<UserToDoTask> UserToDoTasks { get; set; }
     public DbSet<Invite> Invites { get; set; }
     public DbSet<Friendship> Friendships { get; set; }
 
@@ -41,6 +42,18 @@ namespace TaskListC_.Context
           .HasOne(i => i.Receiver)
           .WithMany(u => u.ReceivedInvites)
           .HasForeignKey(i => i.ReceiverId)
+          .OnDelete(DeleteBehavior.NoAction);
+
+      modelBuilder.Entity<UserToDoTask>()
+          .HasOne(ut => ut.User)
+          .WithMany(u => u.UserToDoTasks)
+          .HasForeignKey(ut => ut.UserId)
+          .OnDelete(DeleteBehavior.NoAction);
+
+      modelBuilder.Entity<UserToDoTask>()
+          .HasOne(ut => ut.ToDoTask)
+          .WithMany(t => t.UserToDoTasks)
+          .HasForeignKey(ut => ut.ToDoTaskId)
           .OnDelete(DeleteBehavior.NoAction);
 
     }

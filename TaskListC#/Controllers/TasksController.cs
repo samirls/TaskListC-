@@ -2,6 +2,7 @@
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.Filters;
 using Microsoft.EntityFrameworkCore;
+using System.Linq;
 using TaskListC_.Context;
 using TaskListC_.Models;
 using TaskListC_.ViewModel;
@@ -30,11 +31,28 @@ namespace TaskListC_.Controllers
     {
       var user = await _userManager.GetUserAsync(User);
 
-      var tasks = await _context.ToDoTasks
-        .Where(t => t.Users.Any(u => u.Id == user.Id))
-        .ToListAsync();
+      var tasks = await _context.UserToDoTasks
+          .Where(ut => ut.UserId == user.Id)
+          .Select(ut => ut.ToDoTask)
+          .ToListAsync();
 
-      return View(tasks);
+      var taskWithUsersList = new List<TaskWithUsersVM>();
+
+      foreach (var task in tasks)
+      {
+        var users = await _context.UserToDoTasks
+            .Where(ut => ut.ToDoTaskId == task.Id)
+            .Select(ut => ut.User)
+            .ToListAsync();
+
+        taskWithUsersList.Add(new TaskWithUsersVM
+        {
+          Task = task,
+          Users = users
+        });
+      }
+
+      return View(taskWithUsersList);
     }
     public IActionResult CreateTask()
     {
@@ -49,12 +67,22 @@ namespace TaskListC_.Controllers
       var taskToSave = new ToDoTask();
       taskToSave.TaskTitle = task.TaskTitle;
       taskToSave.TaskDescription = task.TaskDescription;
-      taskToSave.Users = new List<User> { user };
       taskToSave.CreatedAt = DateTime.Now;
 
       _context.ToDoTasks.Add(taskToSave);
       await _context.SaveChangesAsync();
+
+      var userToDoTask = new UserToDoTask
+      {
+        UserId = user.Id,
+        ToDoTaskId = taskToSave.Id
+      };
+
+      _context.UserToDoTasks.Add(userToDoTask);
+      await _context.SaveChangesAsync();
+
       TempData["success"] = "Task created successfully";
+
       return RedirectToAction("Index");
     }
 
@@ -62,12 +90,15 @@ namespace TaskListC_.Controllers
     public async Task<IActionResult> DeleteTask(int id)
     {
       var user = await _userManager.GetUserAsync(User);
-      var task = await _context.ToDoTasks.FirstOrDefaultAsync(t => t.Id == id);
+      var task = await _context.ToDoTasks
+        .Include(t => t.UserToDoTasks)
+        .FirstOrDefaultAsync(t => t.Id == id);
 
       if (task != null)
       {
+        _context.UserToDoTasks.RemoveRange(task.UserToDoTasks);
         _context.ToDoTasks.Remove(task);
-        _context.SaveChanges();
+        await _context.SaveChangesAsync();
         TempData["success"] = "Task deleted successfully";
       }
       else
@@ -88,7 +119,9 @@ namespace TaskListC_.Controllers
 
       var user = await _userManager.GetUserAsync(User);
 
-      ToDoTask task = await _context.ToDoTasks.FirstOrDefaultAsync(t => t.Id == id);
+      ToDoTask task = await _context.ToDoTasks
+        .Include(t => t.UserToDoTasks)
+        .FirstOrDefaultAsync(t => t.Id == id);
 
       if (task == null)
       {
@@ -103,19 +136,105 @@ namespace TaskListC_.Controllers
     {
       var user = await _userManager.GetUserAsync(User);
 
-      var updateTask = _context.ToDoTasks.FirstOrDefault(t => t.Id == obj.Id);
-
-      updateTask.UpdatedByUserId = user.Id;
-      updateTask.LastUpdate = DateTime.UtcNow;
+      var updateTask = await _context.ToDoTasks
+        .Include(t => t.UserToDoTasks)
+        .FirstOrDefaultAsync(t => t.Id == obj.Id);
 
       if (ModelState.IsValid)
       {
-        _context.ToDoTasks.Update(obj);
-        _context.SaveChanges();
+        updateTask.TaskTitle = obj.TaskTitle;
+        updateTask.TaskDescription = obj.TaskDescription;
+        updateTask.LastUpdate = DateTime.Now;
+
+        _context.ToDoTasks.Update(updateTask);
+        await _context.SaveChangesAsync();
+
         TempData["success"] = "Task updated successfully";
+
         return RedirectToAction("Index");
       }
+
+      TempData["error"] = "Something went wrong";
+
       return View();
+    }
+
+    [HttpGet]
+    public async Task<IActionResult> ShareTask(int? id)
+    {
+      if (id == null)
+      {
+        return NotFound();
+      }
+
+      var user = await _userManager.GetUserAsync(User);
+
+      ToDoTask task = await _context.ToDoTasks.FirstOrDefaultAsync(t => t.Id == id);
+
+      var friends = await _context.Friendships
+        .Where(f => f.UserId == user.Id || f.FriendId == user.Id)
+        .Include(f => f.User)
+        .Include(f => f.Friend)
+        .ToListAsync();
+
+      var friendList = friends.Select(f => f.UserId == user.Id ? f.Friend : f.User).ToList();
+
+      ShareTaskVM shareTaskVM = new ShareTaskVM();
+
+      shareTaskVM.Task = task;
+      shareTaskVM.Friends = friendList;
+
+
+      return View(shareTaskVM);
+    }
+
+    [HttpPost]
+    public async Task<IActionResult> ShareTaskSaveChanges(int? taskId, List<string> friendIds)
+    {
+      if (taskId == null || friendIds == null)
+      {
+        TempData["error"] = "Invalid task or friend selection";
+        return RedirectToAction("Index");
+      }
+
+      var task = await _context.ToDoTasks
+          .FirstOrDefaultAsync(t => t.Id == taskId);
+
+      var friends = await _context.Users
+        .Where(u => friendIds.Contains(u.Id))
+        .ToListAsync();
+
+      if (friends.Count == 0)
+      {
+        TempData["error"] = "Invalid Friend selection";
+      }
+
+      var existingUserTasks = await _context.UserToDoTasks
+        .Where(ut => ut.ToDoTaskId == taskId.Value && friendIds.Contains(ut.UserId))
+        .ToListAsync();
+
+      if (existingUserTasks.Count > 0)
+      {
+        TempData["error"] = "One or more selected friends already have access to the task.";
+        return RedirectToAction("Index");
+      }
+
+      foreach (var friend in friends)
+      {
+        var userTask = new UserToDoTask
+        {
+          UserId = friend.Id,
+          ToDoTaskId = taskId.Value
+        };
+
+        _context.UserToDoTasks.Add(userTask);
+      }
+
+      await _context.SaveChangesAsync();
+
+      TempData["success"] = "Task shared successfully";
+
+      return RedirectToAction("Index");
     }
   }
 }
