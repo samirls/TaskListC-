@@ -36,21 +36,34 @@
       }
     </a>
     <ul class="dropdown-menu">
-      <li class="ps-2">User: @userName.ToUpper()</li>
+      <li>
+        <div class="ps-2 d-flex align-items-center gap-1">
+          <div class="fs-3">
+            <i class="bi bi-person-circle"></i>
+          </div>
+          <div>
+            User: <strong>@userName.ToUpper()</strong>
+          </div>
+        </div>
+      </li>
       <li><hr class="dropdown-divider"></li>
-      <li class="ps-2"><a asp-controller="Friends" asp-action="Invitations" class="d-flex pt-2 link-offset-2 link-offset-3-hover link-underline link-underline-opacity-0 link-underline-opacity-75-hover">Manage your invitations</a></li>
+      <li>
+        <div class="ps-2 d-flex align-items-center gap-1">
+          <div class="fs-5">
+            <i class="bi bi-envelope-open"></i>
+          </div>
+          <a asp-controller="Friends" asp-action="Invitations" class="d-flex pt-2 link-offset-2 link-offset-3-hover link-underline link-underline-opacity-0 link-underline-opacity-75-hover">Invites</a>
+        </div>
+      </li>
       @if (invitesCount > 0)
       {
         foreach (var item in invites)
         {
           <li><hr class="dropdown-divider"></li>
           <div class="px-3">
-            <div>@item?.Sender.Name.ToUpper() wants to be your friend!</div>
-            <div class="d-flex flex-column gap-1">
-              <button class="btn btn-outline-secondary btn-sm">Mark as Read</button>
-              <button class="btn btn-outline-success btn-sm">Accept</button>
-              <button class="btn btn-outline-danger btn-sm">Block</button>
-            </div>
+            <div><span class="badge text-bg-success">New</span> <strong>@item?.Sender.Name.ToUpper()</strong> wants to be your friend!</div>
+              
+
           </div>
 
 
@@ -59,8 +72,11 @@
       }
       <li><hr class="dropdown-divider"></li>
       <form asp-controller="Account" asp-action="Logout" id="logoutForm" method="post">
-      <li class="ps-2">
-        <button class="btn custom-btn"><i class="bi bi-power"></i> Logout</button>
+      <li class="ps-2 d-flex justify-content-center">
+        <button class="btn btn-danger d-flex align-items-center gap-1">
+          <div><i class="bi bi-power text-white"></i></div>
+          <div>Logout</div>
+        </button>
       </li>
       </form>
     </ul>
@@ -100,7 +116,7 @@ else
     iziToast.error({
       title: 'Log in first',
       position: 'bottomRight',
-      timeout: 2000
+      timeout: 6000
     });
   }
 

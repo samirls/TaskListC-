@@ -21,22 +21,26 @@
   <header>
     <nav class="navbar navbar-expand-sm navbar-toggleable-sm navbar-light bg-white border-bottom box-shadow mb-3 shadow" style="height: 130px">
       <div class="container-fluid p-5" style="display: flex; justify-content:space-between">
-        <div>
+        <div class="d-flex justify-content-between w-100">
           <a class="navbar-brand fs-1" asp-area="" asp-controller="Home" asp-action="Index"><i class="bi bi-list-check" style="color: #007bff;"></i> <strong>TaskListC#</strong></a>
-          <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target=".navbar-collapse" aria-controls="navbarSupportedContent"
-                  aria-expanded="false" aria-label="Toggle navigation">
-            <span class="navbar-toggler-icon"></span>
+          <button class="btn btn-light fs-1 d-lg-none" type="button" data-bs-toggle="offcanvas" data-bs-target="#hiddenMenu">
+            <i class="bi bi-three-dots-vertical"></i>
           </button>
+
+          <div class="offcanvas offcanvas-start d-lg-none" tabindex="-1" id="hiddenMenu" style="width: 70%">
+            <div class="offcanvas-header">
+              <button type="button" class="btn-close" data-bs-dismiss="offcanvas" aria-label="Close"></button>
+            </div>
+            <div class="offcanvas-body">
+              <ul class="navbar-nav flex-grow-1 fs-4 gap-5">
+                @await Html.PartialAsync("_LoginPartial")
+              </ul>
+            </div>
+          </div>
         </div>
         <div>
           <div class="navbar-collapse collapse d-sm-inline-flex justify-content-between pe-5">
             <ul class="navbar-nav flex-grow-1 fs-4 gap-5">
-@*               @if (User.Identity.IsAuthenticated)
-              {
-                <li class="nav-item">
-                  <span class="navbar-text text-primary">@await UserHelper.GetUserNameAsync()</span>
-                </li>
-              } *@
               @await Html.PartialAsync("_LoginPartial")
             </ul>
           </div>
@@ -56,7 +60,7 @@
       <div class="d-flex justify-content-center">
         &copy; <strong>2024 - TaskList </strong>
       </div>
-      <div class="d-flex justify-content-center">
+      <div class="d-flex justify-content-center text-center">
         This is part of a free C# course created by Samir Laguardia. Visit:
       </div>
       <div class="d-flex justify-content-center gap-2 fs-4">

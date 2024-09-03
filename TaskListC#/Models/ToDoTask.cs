@@ -26,5 +26,11 @@ namespace TaskListC_.Models
     public ICollection<UserToDoTask> UserToDoTasks { get; set; }
     public string UpdatedByUserId { get; set; }
 
+    [Required(ErrorMessage = "You need to add a priority")]
+    [Display(Name = "Priority")]
+    public int PriorityId { get; set; }
+
+    public Priority Priority { get; set; }
+
   }
 }

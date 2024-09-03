@@ -15,6 +15,7 @@ namespace TaskListC_.Context
     public DbSet<UserToDoTask> UserToDoTasks { get; set; }
     public DbSet<Invite> Invites { get; set; }
     public DbSet<Friendship> Friendships { get; set; }
+    public DbSet<Priority> Priorities { get; set; }
 
     protected override void OnModelCreating(ModelBuilder modelBuilder)
     {
@@ -56,6 +57,11 @@ namespace TaskListC_.Context
           .HasForeignKey(ut => ut.ToDoTaskId)
           .OnDelete(DeleteBehavior.NoAction);
 
+      modelBuilder.Entity<ToDoTask>()
+        .HasOne(t => t.Priority)
+        .WithMany(p => p.ToDoTasks)
+        .HasForeignKey(t => t.PriorityId)
+        .OnDelete(DeleteBehavior.NoAction);
     }
   }
 }

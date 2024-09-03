@@ -11,10 +11,17 @@
 <form asp-action="ShareTaskSaveChanges" method="post">
   <input type="hidden" name="taskId" value="@Model.Task.Id" />
   <div class="d-flex justify-content-center">
-    <select required class="js-example-basic-multiple" name="friendIds[]" multiple="multiple" style="width: 50%;">
+    <select class="js-example-basic-multiple" name="friendIds[]" multiple="multiple" style="width: 50%;">
       @foreach (var item in Model.Friends)
       {
-        <option value="@item.Id">@item.Name</option>
+        if (Model.ExistingFriendIds.Contains(item.Id))
+        {
+          <option value="@item.Id" selected>@item.Name</option>
+        }
+        else
+        {
+          <option value="@item.Id">@item.Name</option>
+        }
       }
     </select>
   </div>

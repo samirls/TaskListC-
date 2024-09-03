@@ -15,5 +15,9 @@ namespace TaskListC_.ViewModel
     [MinLength(5, ErrorMessage = "Your description is too short")]
     [MaxLength(400, ErrorMessage = "Your description must not exceed {1} letters")]
     public string TaskDescription { get; set; }
+
+    [Required(ErrorMessage = "You need to add a priority")]
+    [Display(Name = "Priority")]
+    public string TaskPriority { get; set; }
   }
 }
